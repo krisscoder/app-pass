@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.6"
+    "bcrypt": "^3.0.6",
+    "enigma-code": "0.0.11"
   }
 }
