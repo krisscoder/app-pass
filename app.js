@@ -64,19 +64,15 @@ const guardarDB = () => {
 }
 
 const mostrarListado = () => {
-
     cargarDB();
     let nuevoListado = [];
     for (let item of listado) {
         let nuevoItem = {
             titulo: item.titulo,
-            user: enigma.Desencriptar(item.user, function(err, usr) {
-                return (usr);
-            }),
+            user: item.user,
             pass: enigma.Desencriptar(item.hash, function(err, des) {
                 return (des);
             })
-
         }
         nuevoListado.push(nuevoItem);
     }
@@ -84,30 +80,45 @@ const mostrarListado = () => {
 }
 
 const agregar = (titulo, userplano, passplano) => {
-    cargarDB();
-    // console.log(titulo, userplano, passplano);
-    let hash = enigma.genHash(valorEncriptacion, key, passplano, function(err, hash) {
-        return hash
-    });
-    let userHash = enigma.genHash(valorEncriptacion, key, userplano, function(err, userHash) {
-        return userHash
-    });
-    //console.log('user: ', userHash);
-    let itemAgrega = {
-        titulo,
-        user: userHash,
-        hash: hash
 
-    }
-    if (titulo && userHash && hash) {
-        //si existen user y pass encriptado, y el titulo, entonces guarda base y devuelve ok
-        listado.push(itemAgrega);
-        guardarDB(listado);
-        return (itemAgrega);
-    } else {
+    //valida datos recibidos
+    if (passplano.includes(' ') || passplano.includes('}') || passplano.includes('{') || passplano.includes('[') || passplano.includes(']') || passplano.includes('^') || passplano.includes('¿') || passplano.includes('"') || passplano.includes('~') || passplano.includes('`') || passplano.includes('¨') || passplano.includes('¬') || passplano.includes('\'')) {
         return ({
-            error: 'ERROR: falto algun parametro para poder guardar el item.'
+            error: 'La contraseña ingresada contiene espacios o caracteres inválidos.'
         })
+    } else {
+        //si los datos recibidos no contienen errores, procede a guardarlos
+        cargarDB();
+        let hash = enigma.genHash(valorEncriptacion, key, passplano, function(err, hash) {
+            if (err) {
+                return err;
+            } else {
+                return hash;
+            }
+        });
+        /*  let userHash = enigma.genHash(valorEncriptacion, key, userplano, function(err, userHash) {
+            if (err) {
+                return err;
+            } else {
+                return userHash;
+            }
+        }); */
+        let itemAgrega = {
+            titulo,
+            user: userplano,
+            hash: hash
+
+        }
+        if (titulo && hash) {
+            //si existen user y pass encriptado, y el titulo, entonces guarda base y devuelve ok
+            listado.push(itemAgrega);
+            guardarDB(listado);
+            return (itemAgrega);
+        } else {
+            return ({
+                error: 'Los datos ingresados no son correctos'
+            })
+        }
     }
 
 }
@@ -119,4 +130,5 @@ module.exports = {
 //console.log(generaHash('passssssss'));
 //desencripta('Þ119ê115é118ï118í107Ü128î111àŬÜ¬­®');
 //mostrarListado();
-//agregar('mi sitio', 'cristian', 'langosta')
+
+//agregar('mi sitio', 'cristia n@ssss', 'lang osta-73')
